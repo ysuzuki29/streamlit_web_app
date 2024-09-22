@@ -16,5 +16,5 @@ st.code(code, language='python')
 image = Image.open('oishii3_ojisan.png')
 st.image(image, width=200)
 
-name = st.text_input('name')
-print(name)
+#name = st.text_input('name')
+#print(name)
