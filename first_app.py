@@ -1,20 +1,20 @@
 import streamlit as st
-#from PIL import Image
+from PIL import Image
 
-#st.title('アプリ')
-#st.caption('test application')
-#st.subheader('subheader')
+st.title('アプリ')
+st.caption('test application')
+st.subheader('subheader')
 st.text('text text text')
 
-#code = '''
-#import streamlit as st
-#
-#st.title('sample application')
-#'''
+code = '''
+import streamlit as st
 
-#st.code(code, language='python')
-#image = Image.open('oishii3_ojisan.png')
-#st.image(image, width=200)
+st.title('sample application')
+'''
 
-#name = st.text_input('name')
-#print(name)
+st.code(code, language='python')
+image = Image.open('oishii3_ojisan.png')
+st.image(image, width=200)
+
+name = st.text_input('name')
+print(name)
