@@ -29,12 +29,12 @@ if button:
     file_.close()
 
     audio_str="data:audio/ogg;base64, %s"%(base64.b64encode(contents).decode())
-    audio_html= ”””
+    audio_html= '''
                     <audio autoplay=True>
                     <source src="%s" type="audio/ogg" autoplay=True>
                     Your browser does not support the audio element.
                     </audio>
-                """ %audio_str
+                ''' %audio_str
 
 audio_placeholder.empty()
 time.sleep(0.5)
