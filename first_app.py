@@ -26,7 +26,7 @@ df = pd.DataFrame({
     '一列目': [1,2,3,4],
     '二列目': [10,20,30,40]
 })
-st.writede(df)
+st.write(df)
 
 button = st.button('run')
 if button:
