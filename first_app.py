@@ -22,10 +22,10 @@ print(f'submit_btn: {submit_btn}')
 print(f'cancel_btn: {cancel_btn}')
 
 st.write('DataFrame')
-df = pd.DataFrame((
+df = pd.DataFrame({
     '一列目': [1,2,3,4],
     '二列目': [10,20,30,40]
-))
+})
 st.writede(df)
 
 button = st.button('run')
