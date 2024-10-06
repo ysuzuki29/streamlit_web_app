@@ -2,6 +2,8 @@ import streamlit as st
 import streamlit.components.v1 as stc
 import numpy as np
 import pandas as pd
+import random
+import plotly.express as px
 import base64
 import time
 from PIL import Image
@@ -21,13 +23,42 @@ cancel_btn = st.button('cancel')
 print(f'submit_btn: {submit_btn}')
 print(f'cancel_btn: {cancel_btn}')
 
+# dataframe
 st.write('DataFrame')
 df = pd.DataFrame({
     '一列目': [1,2,3,4],
     '二列目': [10,20,30,40]
 })
 st.write(df)
-st.dataframe(df.style.highlight_max(axis=0), width=100, height=100)
+st.dataframe(df.style.highlight_max(axis=0), width=400, height=200)
+
+# chart
+chart_data = pd.DataFrame(
+    np.random.randn(20,3), 
+    columns=['a', 'b', 'c']
+)
+st.line_chart(chart_data)
+
+# map
+map_data=pd.DataFrame(
+    np.random.randn(1000, 2) / [50, 50] + [35.68, 138.59],
+    columns=['lat', 'lon']
+)
+st.map(map_data)
+
+def radar_chart():  
+    df = pd.DataFrame(dict(
+    r=[random.randint(0,22),
+       random.randint(0,22),
+       random.randint(0,22),
+       random.randint(0,22),
+       random.randint(0,22)],
+    theta=['processing cost','mechanical properties','chemical stability',
+           'thermal stability', 'device integration']))
+    fig = px.line_polar(df, r='r', theta='theta', line_close=True)
+    placeholder.write(fig)
+
+radar_chart()
 
 button = st.button('run')
 if button:
