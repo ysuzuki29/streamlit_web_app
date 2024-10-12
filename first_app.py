@@ -3,20 +3,108 @@ import streamlit.components.v1 as stc
 import numpy as np
 import pandas as pd
 import random
+import plotly
 import plotly.express as px
 import base64
 import time
 from PIL import Image
+import json
+import wave
 
 
 st.title('Lifestyle-related Disease Improvement Support App')
 st.caption('Diabetic Support')
 
-image = Image.open('oishii3_ojisan.png')
+image = Image.open('seikatsusyukan_lowcalorie.png')
+image_oji = Image.open('oishii3_ojisan.png')
+image_oba = Image.open('bentou_obasan.png')
+
+image_hamburger = Image.open('food_hamburger_cheese.png')
+image_curry = Image.open('curry_indian_man.png')
+image_gyudon = Image.open('food_gyudon.png')
+image_oatmeal = Image.open('food_oatmeal.png')
+image_gohan = Image.open('food_gohan.png')
+image_pizza = Image.open('pizza_margherita.png')
+image_udon = Image.open('food_udon.png')
+image_sushi = Image.open('nigirizushi_moriawase.png')
+
 st.image(image, width=200)
 
 name = st.text_input('name')
-print(name)
+st.write("Hi! ",name)
+
+age = st.text_input('age')
+st.write(age)
+
+gender = st.radio(
+    "gender: (male|female)",
+    [":rainbow[male]", "***female***"],
+)
+
+st.write(gender)
+if gender==':rainbow[male]':
+    st.image(image_oji, width=200)
+else:
+    st.image(image_oba, width=200)
+
+st.write('examples: hamburger, curry, oatmeal, gyudon, pizza, udon, sushi, gohan')
+
+breakfast = st.text_input('breakfast')
+st.write(breakfast)
+if breakfast=='hamburger':
+    st.image(image_hamburger, width=200)
+elif breakfast=='curry':
+    st.image(image_curry, width=200)
+elif breakfast=='oatmeal':
+    st.image(image_oatmeal, width=200)
+elif breakfast=='gyudon':
+    st.image(image_gyudon, width=200)
+elif breakfast=='pizza':
+    st.image(image_pizza, width=200)
+elif breakfast=='udon':
+    st.image(image_udon, width=200)
+elif breakfast=='sushi':
+    st.image(image_sushi, width=200)
+else:
+    st.image(image_gohan, width=200)
+
+lunch = st.text_input('lunch')
+st.write(lunch)
+if lunch=='hamburger':
+    st.image(image_hamburger, width=200)
+elif lunch=='curry':
+    st.image(image_curry, width=200)
+elif lunch=='oatmeal':
+    st.image(image_oatmeal, width=200)
+elif lunch=='gyudon':
+    st.image(image_gyudon, width=200)
+elif lunch=='pizza':
+    st.image(image_pizza, width=200)
+elif lunch=='udon':
+    st.image(image_udon, width=200)
+elif lunch=='sushi':
+    st.image(image_sushi, width=200)
+else:
+    st.image(image_gohan, width=200)
+
+supper = st.text_input('supper')
+st.write(supper)
+if supper=='hamburger':
+    st.image(image_hamburger, width=200)
+elif supper=='curry':
+    st.image(image_curry, width=200)
+elif supper=='oatmeal':
+    st.image(image_oatmeal, width=200)
+elif supper=='gyudon':
+    st.image(image_gyudon, width=200)
+elif supper=='pizza':
+    st.image(image_pizza, width=200)
+elif supper=='udon':
+    st.image(image_udon, width=200)
+elif supper=='sushi':
+    st.image(image_sushi, width=200)
+else:
+    st.image(image_gohan, width=200)
 
 submit_btn = st.button('submit')
 cancel_btn = st.button('cancel')
@@ -56,7 +144,7 @@ def radar_chart():
     theta=['processing cost','mechanical properties','chemical stability',
            'thermal stability', 'device integration']))
     fig = px.line_polar(df, r='r', theta='theta', line_close=True)
-    placeholder.write(fig)
+    #audio_placeholder.write(fig)
 
 radar_chart()
 
@@ -76,10 +164,9 @@ if button:
                     </audio>
                 ''' %audio_str
 
-audio_placeholder.empty()
+audio_placeholder = st.empty()
 time.sleep(0.5)
-audio_placeholder.markdown(audio_html, unsafe_allow_html=True)
-
+#
 #
 
 st.subheader('subheader')
