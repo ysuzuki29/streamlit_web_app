@@ -11,39 +11,76 @@ from PIL import Image
 import json
 import wave
 import sqlite3
+import math
+
+#for i in range(1,10,1):
+#    st.write(math.factorial(i))
 
 # SQLiteデータベースに接続
-conn = sqlite3.connect('example.db')
+conn = sqlite3.connect('meal_data.db')
 c = conn.cursor()
+conn_p = sqlite3.connect('personal_data.db')
+c_p = conn_p.cursor()
 
 # テーブルの作成
-c.execute('''CREATE TABLE IF NOT EXISTS users
-             (id INTEGER PRIMARY KEY, mealname TEXT, calorie INTEGER)''')
+c.execute('''CREATE TABLE IF NOT EXISTS meal_data
+             (id INTEGER PRIMARY KEY, name TEXT, calorie INTEGER)''')
+
+c_p.execute('''CREATE TABLE IF NOT EXISTS personal_data
+             (id INTEGER PRIMARY KEY, name TEXT, gender TEXT, age INTEGER, height REAL, weight REAL)''')
  
 # データの挿入
 if st.button("データを挿入"):
-    c.execute("INSERT INTO users (mealname, calorie) VALUES (?, ?)", ("hamburger", 100))
-    c.execute("INSERT INTO users (mealname, calorie) VALUES (?, ?)", ("curry", 200))
-    c.execute("INSERT INTO users (mealname, calorie) VALUES (?, ?)", ("gyudon", 300))
-    c.execute("INSERT INTO users (mealname, calorie) VALUES (?, ?)", ("oatmeal", 400))
-    c.execute("INSERT INTO users (mealname, calorie) VALUES (?, ?)", ("gohan", 500))
-    c.execute("INSERT INTO users (mealname, calorie) VALUES (?, ?)", ("pizza", 600))
-    c.execute("INSERT INTO users (mealname, calorie) VALUES (?, ?)", ("udon", 700))
-    c.execute("INSERT INTO users (mealname, calorie) VALUES (?, ?)", ("sushi", 800))
+    c.execute("INSERT INTO meal_data (name, calorie) VALUES (?, ?)", ("hamburger", 100))
+    c.execute("INSERT INTO meal_data (name, calorie) VALUES (?, ?)", ("curry", 200))
+    c.execute("INSERT INTO meal_data (name, calorie) VALUES (?, ?)", ("gyudon", 300))
+    c.execute("INSERT INTO meal_data (name, calorie) VALUES (?, ?)", ("oatmeal", 400))
+    c.execute("INSERT INTO meal_data (name, calorie) VALUES (?, ?)", ("gohan", 500))
+    c.execute("INSERT INTO meal_data (name, calorie) VALUES (?, ?)", ("pizza", 600))
+    c.execute("INSERT INTO meal_data (name, calorie) VALUES (?, ?)", ("udon", 700))
+    c.execute("INSERT INTO meal_data (name, calorie) VALUES (?, ?)", ("sushi", 800))
     conn.commit()
     st.write("データが挿入されました")
- 
+
+if st.button("データを挿入 personal data"):
+    c_p.execute("INSERT INTO personal_data (name, gender, age, height, weight) VALUES (?, ?, ?, ?, ?)", ("Yoshimi Suzuki", "male", 61, 1.75, 64)) 
+    conn_p.commit()
+
 # データの取得
-c.execute("SELECT * FROM users")
+c.execute("SELECT * FROM meal_data")
 rows = c.fetchall()
- 
+
+c_p.execute("SELECT * FROM personal_data")
+rows_p = c_p.fetchall()
+
+
 # データの表示
-st.write("ユーザー情報:")
+st.write("料理とカロリー:")
 for row in rows:
     st.write(row)
- 
+
+name_dict={}
+persons=[]
+st.write("個人データ:")
+for row_p in rows_p:
+    st.write(row_p) # personal_data 
+    st.write(row_p[1]) # personoal_data name
+    name_dict[row_p[1]]=row_p[0]
+    persons.append(pd.Series(row_p))
+    #st.write(row_p)
+st.write(name_dict)
+st.write(persons)
+
+#c.execute("SELECT * FROM meal_data WHERE name='curry'")
+#d=c.fetchone()
+#st.write("calorie of ", d[1], " is", d[2], "kcal")
+
+#c_p.execute("SELECT * FROM personal_data WHERE name='Yoshimi Suzuki'")
+#d_p=c_p.fetchone()
+#st.write("You are ", d_p[1], "years old")
+
 # 接続を閉じる
-conn.close()
+#conn.close()
 
 
 st.title('Lifestyle-related Disease Improvement Support App')
@@ -66,28 +103,45 @@ st.image(image, width=200)
 
 name = st.text_input('name', placeholder="your name")
 st.write("Hi! ",name)
-
-age = st.text_input('age', placeholder="your age")
-st.write(age)
-
-gender = st.radio(
-    "gender: (male|female)",
-    [":rainbow[male]", "***female***"],
-)
-
-st.write(gender)
-if gender==':rainbow[male]':
-    st.image(image_oji, width=200)
+if name in name_dict:
+    st.write("You are already registered!!")
+    for person in persons:
+        if person[1]==name:
+            gender=person[2]
+            age=person[3]
+            height=person[4]
+            weight=person[5]
+            st.write("age=", age, "gender=", gender, "height=", height, "weight=", weight)
 else:
-    st.image(image_oba, width=200)
+    st.write("Please register now.")
+    age = st.text_input('age', placeholder="your age")
+    st.write("You are ", age)
 
-height=1
-weight=1
-height = st.text_input('height', placeholder="your height (m)")
-st.write(height)
+    gender = st.radio(
+        "gender: (male|female)",
+        ["male", "female"],
+    )
 
-weight = st.text_input('weight', placeholder="your weight (kg)")
-st.write(weight)
+    st.write(gender)
+    if gender=='male':
+        st.image(image_oji, width=200)
+    else:
+        st.image(image_oba, width=200)
+
+    height = st.text_input('height', placeholder="your height (m)")
+    st.write(height)
+
+    weight = st.text_input('weight', placeholder="your weight (kg)")
+    st.write(weight)
+    submit_btn = st.button('submit')
+    cancel_btn = st.button('cancel')
+    print(f'submit_btn: {submit_btn}')
+    print(f'cancel_btn: {cancel_btn}')
+    
+    new_person=[name, gender, age, height, weight]
+    c_p.execute("INSERT INTO personal_data (name, gender, age, height, weight) VALUES (?, ?, ?, ?, ?)", (name, gender, int(age), float(height), float(weight))) 
+    st.write("age=", age, "gender=", gender, "height=", height, "weight=", weight)
+    conn_p.commit()
 
 bmi=float(weight)/(float(height)*float(height))
 
@@ -110,12 +164,12 @@ if bmi <= 18.5:
 elif bmi <=25:
     st.write(who_ref[1])
 elif bmi <=30:
-    st.write(df[1,2])
+    st.write(who_ref[2])
 elif bmi <=35:
-    st.write(df[1,3])
+    st.write(who_ref[3])
 elif bmi <=40:
-    st.write(df[1,4])
-else: st.write(df[1,5])
+    st.write(who_ref[4])
+else: st.write(who_ref[5])
 
 
 #st.dataframe(df.style.highlight_max(axis=0), width=400, height=200)
@@ -142,19 +196,54 @@ def showMealPicture(mealname):
     else:
         st.image(image_gohan, width=200)
   
+total_calorie=0
 
-breakfast = st.text_input('breakfast')
+breakfast = st.radio(
+    "breakfast: ",
+    ["hamburger", "curry", "oatmeal", "gyudon", "pizza", "udon", "sushi", "other"], horizontal=True,
+)
+if breakfast == "other":
+    breakfast = st.text_input('breakfast')
+
 st.write(breakfast)
 showMealPicture(breakfast)
+c.execute("SELECT * FROM meal_data WHERE name=?", (breakfast, ))
+d=c.fetchone()
+st.write("calorie of ", d[1], " is", d[2], "kcal")
+total_calorie+=d[2]
 
-lunch = st.text_input('lunch')
+lunch = st.radio(
+    "lunch: ",
+    ["hamburger", "curry", "oatmeal", "gyudon", "pizza", "udon", "sushi", "other"], horizontal=True,
+)
+if lunch == "other":
+    lunch = st.text_input('lunch')
+
 st.write(lunch)
 showMealPicture(lunch)
+c.execute("SELECT * FROM meal_data WHERE name=?", (lunch, ))
+d=c.fetchone()
+st.write("calorie of ", d[1], " is", d[2], "kcal")
+total_calorie+=d[2]
 
-supper = st.text_input('supper')
+
+supper = st.radio(
+    "supper: ",
+    ["hamburger", "curry", "oatmeal", "gyudon", "pizza", "udon", "sushi", "other"], horizontal=True,
+)
+if supper == "other":
+    supper = st.text_input('supper')
+
 st.write(supper)
 showMealPicture(supper)
+c.execute("SELECT * FROM meal_data WHERE name=?", (supper, ))
+d=c.fetchone()
+st.write("calorie of ", d[1], " is", d[2], "kcal")
+total_calorie+=d[2]
 
+st.write("today's total calorie is ", total_calorie, "kcal")
+
+######
 submit_btn = st.button('submit')
 cancel_btn = st.button('cancel')
 print(f'submit_btn: {submit_btn}')
@@ -228,3 +317,8 @@ st.title('sample application')
 '''
 
 st.code(code, language='python')
+
+# 接続を閉じる
+conn.close()
+conn_p.close()
+
