@@ -199,7 +199,10 @@ def showMealPicture(mealname):
         st.image(image_gohan, width=200)
   
 total_calorie=0
+cals=[]
+meals=[]
 
+# breakfast
 breakfast = st.radio(
     "breakfast: ",
     ["hamburger", "curry", "oatmeal", "gyudon", "pizza", "udon", "sushi", "other"], horizontal=True,
@@ -213,7 +216,10 @@ c.execute("SELECT * FROM meal_data WHERE name=?", (breakfast, ))
 d=c.fetchone()
 st.write("calorie of ", d[1], " is", d[2], "kcal")
 total_calorie+=d[2]
+cals.append(d[2])
+meals.append('breakfast')
 
+# lunch
 lunch = st.radio(
     "lunch: ",
     ["hamburger", "curry", "oatmeal", "gyudon", "pizza", "udon", "sushi", "other"], horizontal=True,
@@ -227,8 +233,10 @@ c.execute("SELECT * FROM meal_data WHERE name=?", (lunch, ))
 d=c.fetchone()
 st.write("calorie of ", d[1], " is", d[2], "kcal")
 total_calorie+=d[2]
+cals.append(d[2])
+meals.append('lunch')
 
-
+# supper
 supper = st.radio(
     "supper: ",
     ["hamburger", "curry", "oatmeal", "gyudon", "pizza", "udon", "sushi", "other"], horizontal=True,
@@ -242,6 +250,8 @@ c.execute("SELECT * FROM meal_data WHERE name=?", (supper, ))
 d=c.fetchone()
 st.write("calorie of ", d[1], " is", d[2], "kcal")
 total_calorie+=d[2]
+cals.append(d[2])
+meals.append('supper')
 
 st.write("today's total calorie is ", total_calorie, "kcal")
 
@@ -254,12 +264,13 @@ print(f'cancel_btn: {cancel_btn}')
 # dataframe
 st.write('DataFrame')
 df = pd.DataFrame({
-    '一列目': [1,2,3,4],
-    '二列目': [10,20,30,40]
+    'meal': ['breakfast','lunch','supper','total'],
+    'calorie(kcal)': [cals[0],cals[1],cals[2],total_calorie]
 })
-st.write(df)
+#st.write(df)
 st.dataframe(df.style.highlight_max(axis=0), width=400, height=200)
-
+meal_calorie=pd.DataFrame(cals, meals)
+st.bar_chart(meal_calorie)
 # chart
 chart_data = pd.DataFrame(
     np.random.randn(20,3), 
