@@ -24,26 +24,28 @@ c_p = conn_p.cursor()
 
 # テーブルの作成
 c.execute('''CREATE TABLE IF NOT EXISTS meal_data
-             (id INTEGER PRIMARY KEY, name TEXT, calorie INTEGER)''')
+             (id INTEGER PRIMARY KEY, name TEXT, calorie INTEGER, GI REAL)''')
 
 c_p.execute('''CREATE TABLE IF NOT EXISTS personal_data
              (id INTEGER PRIMARY KEY, name TEXT, gender TEXT, age INTEGER, height REAL, weight REAL)''')
  
 # データの挿入
 if st.button("データを挿入"):
-    c.execute("INSERT INTO meal_data (name, calorie) VALUES (?, ?)", ("hamburger", 100))
-    c.execute("INSERT INTO meal_data (name, calorie) VALUES (?, ?)", ("curry", 200))
-    c.execute("INSERT INTO meal_data (name, calorie) VALUES (?, ?)", ("gyudon", 300))
-    c.execute("INSERT INTO meal_data (name, calorie) VALUES (?, ?)", ("oatmeal", 400))
-    c.execute("INSERT INTO meal_data (name, calorie) VALUES (?, ?)", ("gohan", 500))
-    c.execute("INSERT INTO meal_data (name, calorie) VALUES (?, ?)", ("pizza", 600))
-    c.execute("INSERT INTO meal_data (name, calorie) VALUES (?, ?)", ("udon", 700))
-    c.execute("INSERT INTO meal_data (name, calorie) VALUES (?, ?)", ("sushi", 800))
+    c.execute("INSERT INTO meal_data (name, calorie, GI) VALUES (?, ?, ?)", ("hamburger", 294.9, 80))
+    c.execute("INSERT INTO meal_data (name, calorie, GI) VALUES (?, ?, ?)", ("curry", 650, 90))
+    c.execute("INSERT INTO meal_data (name, calorie, GI) VALUES (?, ?, ?)", ("gyudon", 716, 75))
+    c.execute("INSERT INTO meal_data (name, calorie, GI) VALUES (?, ?, ?)", ("oatmeal", 350, 60))
+    c.execute("INSERT INTO meal_data (name, calorie, GI) VALUES (?, ?, ?)", ("gohan", 168, 85))
+    c.execute("INSERT INTO meal_data (name, calorie, GI) VALUES (?, ?, ?)", ("pizza", 872, 83))
+    c.execute("INSERT INTO meal_data (name, calorie, GI) VALUES (?, ?, ?)", ("udon", 727, 93))
+    c.execute("INSERT INTO meal_data (name, calorie, GI) VALUES (?, ?, ?)", ("sushi", 640, 91))
     conn.commit()
     st.write("データが挿入されました")
 
 if st.button("データを挿入 personal data"):
     c_p.execute("INSERT INTO personal_data (name, gender, age, height, weight) VALUES (?, ?, ?, ?, ?)", ("Yoshimi Suzuki", "male", 61, 1.75, 64)) 
+    c_p.execute("INSERT INTO personal_data (name, gender, age, height, weight) VALUES (?, ?, ?, ?, ?)", ("Hanako", "female", 48, 1.60, 55)) 
+    c_p.execute("INSERT INTO personal_data (name, gender, age, height, weight) VALUES (?, ?, ?, ?, ?)", ("Taro", "male", 55, 1.70, 80)) 
     conn_p.commit()
 
 # データの取得
@@ -137,7 +139,7 @@ else:
     cancel_btn = st.button('cancel')
     print(f'submit_btn: {submit_btn}')
     print(f'cancel_btn: {cancel_btn}')
-    
+
     new_person=[name, gender, age, height, weight]
     c_p.execute("INSERT INTO personal_data (name, gender, age, height, weight) VALUES (?, ?, ?, ?, ?)", (name, gender, int(age), float(height), float(weight))) 
     st.write("age=", age, "gender=", gender, "height=", height, "weight=", weight)
