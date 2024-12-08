@@ -12,6 +12,8 @@ import json
 import wave
 import sqlite3
 import math
+import datetime
+from openai import OpenAI
 
 #for i in range(1,10,1):
 #    st.write(math.factorial(i))
@@ -145,12 +147,14 @@ else:
     st.write("age=", age, "gender=", gender, "height=", height, "weight=", weight)
     conn_p.commit()
 
-bmi=float(weight)/(float(height)*float(height))
+def float2string(float_num):
+    return "{:.2f}".format(float_num)
 
-st.write("your BMI is ", bmi)
+bmi=float(weight)/(float(height)*float(height))
+st.write("your BMI is ", float2string(bmi))
 
 bmi_class=['x<=18.5', '18.5<x<25', '25<x<30', '30<x<35', '35<x<40', '40<x']
-who_ref=['Underweight', 'Normal range', 'Pre-obese', 'Obese class 1', 'Obese class 2', 'Obese class 3']
+who_ref=['Underweight', 'Normal', 'Pre-obese', 'Obese class 1', 'Obese class 2', 'Obese class 3']
 
 # dataframe
 st.write('DataFrame')
@@ -160,19 +164,18 @@ df = pd.DataFrame({
 })
 st.write(df)
 
-st.write("You are in ")
 if bmi <= 18.5:
-    st.write(who_ref[0])
+    st.write("You are in", who_ref[0], "level")
 elif bmi <=25:
-    st.write(who_ref[1])
+    st.write("**You are in", who_ref[1], "level**")
 elif bmi <=30:
-    st.write(who_ref[2])
+    st.write("You are in", who_ref[2], "level")
 elif bmi <=35:
-    st.write(who_ref[3])
+    st.write("You are in", who_ref[3], "level")
 elif bmi <=40:
-    st.write(who_ref[4])
-else: st.write(who_ref[5])
-
+    st.write("You are in", who_ref[4], "level")
+else: st.write("You are in", who_ref[5], "level")
+st.write("***") # horizontal line
 
 #st.dataframe(df.style.highlight_max(axis=0), width=400, height=200)
 
@@ -197,7 +200,19 @@ def showMealPicture(mealname):
         st.image(image_sushi, width=200)
     else:
         st.image(image_gohan, width=200)
-  
+
+def ideal_calorie(gender, age, height, weight, activitiy_level):
+    if(gender=="male"):
+        param=0.4235
+    else:
+        param=0.9708
+    ideal_cal=(0.0481*weight+0.0234*height*100-0.0138*age-param)*1000/4.186*(1.25+activitiy_level*0.25)
+    return ideal_cal
+
+st.write("ideal calorie=", float2string(ideal_calorie(gender, age, height, weight, 3)))
+
+st.write("***") # horizontal line
+
 total_calorie=0
 cals=[]
 meals=[]
@@ -253,6 +268,23 @@ total_calorie+=d[2]
 cals.append(d[2])
 meals.append('supper')
 
+# snack
+snack = st.radio(
+    "snack: ",
+    ["hamburger", "curry", "oatmeal", "gyudon", "pizza", "udon", "sushi", "other"], horizontal=True,
+)
+if snack == "other":
+    supper = st.text_input('snack')
+
+st.write(snack)
+showMealPicture(snack)
+c.execute("SELECT * FROM meal_data WHERE name=?", (snack, ))
+d=c.fetchone()
+st.write("calorie of ", d[1], " is", d[2], "kcal")
+total_calorie+=d[2]
+cals.append(d[2])
+meals.append('snack')
+
 st.write("today's total calorie is ", total_calorie, "kcal")
 
 ######
@@ -264,13 +296,134 @@ print(f'cancel_btn: {cancel_btn}')
 # dataframe
 st.write('DataFrame')
 df = pd.DataFrame({
-    'meal': ['breakfast','lunch','supper','total'],
-    'calorie(kcal)': [cals[0],cals[1],cals[2],total_calorie]
+    'meal': ['breakfast','lunch','supper','snack', 'total', 'ideal'],
+    'calorie(kcal)': [cals[0],cals[1],cals[2],cals[3],total_calorie,ideal_calorie(gender,age,height,weight,3)]
 })
 #st.write(df)
-st.dataframe(df.style.highlight_max(axis=0), width=400, height=200)
+st.dataframe(df.style.highlight_max(axis=0), width=400, height=300)
+
 meal_calorie=pd.DataFrame(cals, meals)
 st.bar_chart(meal_calorie)
+
+
+#
+"""
+with st.chat_message("User"):
+    st.write("Hello, Assistant")
+
+with st.chat_message("Assistant"):
+    st.write("Hello User")
+    st.bar_chart(np.random.randn(30,3))
+
+
+prompt=st.chat_input("Hello. Say somethong")
+if prompt:
+    st.write(f"User has sent the following prompt: {prompt}")
+
+
+st.title("Hello Bot")
+if "Messages" not in st.session_state:
+    st.session_state.messages=[]
+
+for message in st.session_state.messages:
+    with st.chat_message(message("role")):
+        st.markdown(message["content"])
+
+if prompt := st.chat_input("What is up?"):
+    with st.chat_message("user"):
+        st.markdown(prompt)
+
+    st.session_state.messages.append({"role": "user", "content": prompt})
+
+response=f"Echo: {prompt}"
+
+with st.chat_message("assistant"):
+    st.markdown(response)
+#
+
+st.title("Simple chat")
+
+# Initialize chat history
+if "messages" not in st.session_state:
+    st.session_state.messages = []
+
+# Display chat messages from history on app rerun
+for message in st.session_state.messages:
+    with st.chat_message(message["role"]):
+        st.markdown(message["content"])
+
+# Accept user input
+if prompt := st.chat_input("What is up?"):
+    # Display user message in chat message container
+    with st.chat_message("user"):
+        st.markdown(prompt)
+    # Add user message to chat history
+    st.session_state.messages.append({"role": "user", "content": prompt})
+
+# Streamed response emulator
+def response_generator():
+    response = random.choice(
+        [
+            "Hello there! How can I assist you today?",
+            "Hi, human! Is there anything I can help you with?",
+            "Do you need help?",
+        ]
+    )
+    for word in response.split():
+        yield word + " "
+        time.sleep(0.05)
+
+# Display assistant response in chat message container
+with st.chat_message("assistant"):
+    response = st.write_stream(response_generator())
+# Add assistant response to chat history
+st.session_state.messages.append({"role": "assistant", "content": response})
+
+"""
+
+#
+st.title("ChatGPT-like clone")
+
+# Set OpenAI API key from Streamlit secrets
+client = OpenAI(api_key=st.secrets["OPENAI_API_KEY"])
+
+# Set a default model
+if "openai_model" not in st.session_state:
+    st.session_state["openai_model"] = "gpt-3.5-turbo"
+
+# Initialize chat history
+if "messages" not in st.session_state:
+    st.session_state.messages = []
+
+# Display chat messages from history on app rerun
+for message in st.session_state.messages:
+    with st.chat_message(message["role"]):
+        st.markdown(message["content"])
+
+# Accept user input
+if prompt := st.chat_input("What is up?"):
+    # Add user message to chat history
+    st.session_state.messages.append({"role": "user", "content": prompt})
+    # Display user message in chat message container
+    with st.chat_message("user"):
+        st.markdown(prompt)
+
+    # Display assistant response in chat message container
+    with st.chat_message("assistant"):
+        stream = client.chat.completions.create(
+            model=st.session_state["openai_model"],
+            messages=[
+                {"role": m["role"], "content": m["content"]}
+                for m in st.session_state.messages
+            ],
+            stream=True,
+        )
+        response = st.write_stream(stream)
+    st.session_state.messages.append({"role": "assistant", "content": response})
+
+
+#-------------------
+"""
 # chart
 chart_data = pd.DataFrame(
     np.random.randn(20,3), 
@@ -327,10 +480,10 @@ code = '''
 import streamlit as st
 
 st.title('sample application')
-'''
 
 st.code(code, language='python')
 
+"""
 # 接続を閉じる
 conn.close()
 conn_p.close()
