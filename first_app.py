@@ -307,38 +307,38 @@ st.bar_chart(meal_calorie)
 
 
 #
-"""
-with st.chat_message("User"):
-    st.write("Hello, Assistant")
+def chat():
+    with st.chat_message("User"):
+        st.write("Hello, Assistant")
 
-with st.chat_message("Assistant"):
-    st.write("Hello User")
-    st.bar_chart(np.random.randn(30,3))
-
-
-prompt=st.chat_input("Hello. Say somethong")
-if prompt:
-    st.write(f"User has sent the following prompt: {prompt}")
+    with st.chat_message("Assistant"):
+        st.write("Hello User")
+        st.bar_chart(np.random.randn(30,3))
 
 
-st.title("Hello Bot")
-if "Messages" not in st.session_state:
-    st.session_state.messages=[]
+    prompt=st.chat_input("Hello. Say somethong")
+    if prompt:
+        st.write(f"User has sent the following prompt: {prompt}")
 
-for message in st.session_state.messages:
-    with st.chat_message(message("role")):
-        st.markdown(message["content"])
 
-if prompt := st.chat_input("What is up?"):
-    with st.chat_message("user"):
-        st.markdown(prompt)
+    st.title("Hello Bot")
+    if "Messages" not in st.session_state:
+        st.session_state.messages=[]
 
-    st.session_state.messages.append({"role": "user", "content": prompt})
+    for message in st.session_state.messages:
+        with st.chat_message(message("role")):
+            st.markdown(message["content"])
 
-response=f"Echo: {prompt}"
+    if prompt := st.chat_input("What is up?"):
+        with st.chat_message("user"):
+            st.markdown(prompt)
 
-with st.chat_message("assistant"):
-    st.markdown(response)
+        st.session_state.messages.append({"role": "user", "content": prompt})
+
+    response=f"Echo: {prompt}"
+
+    with st.chat_message("assistant"):
+        st.markdown(response)
 #
 
 st.title("Simple chat")
@@ -379,64 +379,67 @@ with st.chat_message("assistant"):
 # Add assistant response to chat history
 st.session_state.messages.append({"role": "assistant", "content": response})
 
-"""
+
 
 #
-st.title("ChatGPT-like clone")
+def ChatGPT():
+    st.title("ChatGPT-like clone")
 
 # Set OpenAI API key from Streamlit secrets
-client = OpenAI(api_key=st.secrets["OPENAI_API_KEY"])
+    client = OpenAI(api_key=st.secrets["OPENAI_API_KEY"])
 
 # Set a default model
-if "openai_model" not in st.session_state:
-    st.session_state["openai_model"] = "gpt-3.5-turbo"
+    if "openai_model" not in st.session_state:
+        st.session_state["openai_model"] = "gpt-3.5-turbo"
 
 # Initialize chat history
-if "messages" not in st.session_state:
-    st.session_state.messages = []
+    if "messages" not in st.session_state:
+        st.session_state.messages = []
 
 # Display chat messages from history on app rerun
-for message in st.session_state.messages:
-    with st.chat_message(message["role"]):
-        st.markdown(message["content"])
+    for message in st.session_state.messages:
+        with st.chat_message(message["role"]):
+            st.markdown(message["content"])
 
 # Accept user input
-if prompt := st.chat_input("What is up?"):
+    if prompt := st.chat_input("What is up?"):
     # Add user message to chat history
-    st.session_state.messages.append({"role": "user", "content": prompt})
+        st.session_state.messages.append({"role": "user", "content": prompt})
     # Display user message in chat message container
-    with st.chat_message("user"):
-        st.markdown(prompt)
+        with st.chat_message("user"):
+            st.markdown(prompt)
 
     # Display assistant response in chat message container
-    with st.chat_message("assistant"):
-        stream = client.chat.completions.create(
-            model=st.session_state["openai_model"],
-            messages=[
-                {"role": m["role"], "content": m["content"]}
-                for m in st.session_state.messages
-            ],
-            stream=True,
-        )
-        response = st.write_stream(stream)
-    st.session_state.messages.append({"role": "assistant", "content": response})
+        with st.chat_message("assistant"):
+            stream = client.chat.completions.create(
+                model=st.session_state["openai_model"],
+                messages=[
+                    {"role": m["role"], "content": m["content"]}
+                    for m in st.session_state.messages
+                ],
+                stream=True,
+            )
+            response = st.write_stream(stream)
+        st.session_state.messages.append({"role": "assistant", "content": response})
 
 
 #-------------------
-"""
+
 # chart
-chart_data = pd.DataFrame(
-    np.random.randn(20,3), 
-    columns=['a', 'b', 'c']
-)
-st.line_chart(chart_data)
+def chart():
+    chart_data = pd.DataFrame(
+        np.random.randn(20,3), 
+        columns=['a', 'b', 'c']
+    )
+    st.line_chart(chart_data)
 
 # map
-map_data=pd.DataFrame(
-    np.random.randn(1000, 2) / [50, 50] + [35.68, 138.59],
-    columns=['lat', 'lon']
-)
-st.map(map_data)
+def map():
+    map_data=pd.DataFrame(
+        np.random.randn(1000, 2) / [50, 50] + [35.68, 138.59],
+        columns=['lat', 'lon']
+    )
+    st.map(map_data)
 
 def radar_chart():  
     df = pd.DataFrame(dict(
@@ -452,38 +455,27 @@ def radar_chart():
 
 radar_chart()
 
-button = st.button('run')
-if button:
-    audio_path1='keep_it_up.wav'
-    audio_placeholder=st.empty()
-    file_=open(audio_path1, "rb")
-    contents=file_.read()
-    file_.close()
+def audio():
+    button = st.button('run')
+    if button:
+        audio_path1='keep_it_up.wav'
+        audio_placeholder=st.empty()
+        file_=open(audio_path1, "rb")
+        contents=file_.read()
+        file_.close()
 
-    audio_str="data:audio/ogg;base64, %s"%(base64.b64encode(contents).decode())
-    audio_html= '''
-                    <audio autoplay=True>
-                    <source src="%s" type="audio/ogg" autoplay=True>
-                    Your browser does not support the audio element.
-                    </audio>
-                ''' %audio_str
+        audio_str="data:audio/ogg;base64, %s"%(base64.b64encode(contents).decode())
+        audio_html= '''
+                        <audio autoplay=True>
+                        <source src="%s" type="audio/ogg" autoplay=True>
+                        Your browser does not support the audio element.
+                        </audio>
+                    ''' %audio_str
 
-audio_placeholder = st.empty()
-time.sleep(0.5)
+    audio_placeholder = st.empty()
+    time.sleep(0.5)
 #
-#
 
-st.subheader('subheader')
-st.text('text text text')
-
-code = '''
-import streamlit as st
-
-st.title('sample application')
-
-st.code(code, language='python')
-
-"""
 # 接続を閉じる
 conn.close()
 conn_p.close()
