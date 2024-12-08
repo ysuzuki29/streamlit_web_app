@@ -13,7 +13,6 @@ import wave
 import sqlite3
 import math
 import datetime
-#from openai import OpenAI
 
 #for i in range(1,10,1):
 #    st.write(math.factorial(i))
