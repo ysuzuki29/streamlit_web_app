@@ -182,23 +182,23 @@ st.write("What meals did you eat today?")
 
 st.write('examples: hamburger, curry, oatmeal, gyudon, pizza, udon, sushi, gohan')
 
-def showMealPicture(mealname):
+def showMealPicture(mealname, p_size):
     if mealname=='hamburger':
-        st.image(image_hamburger, width=200)
+        st.image(image_hamburger, width=p_size)
     elif mealname=='curry':
-        st.image(image_curry, width=200)
+        st.image(image_curry, width=p_size)
     elif mealname=='oatmeal':
-        st.image(image_oatmeal, width=200)
+        st.image(image_oatmeal, width=p_size)
     elif mealname=='gyudon':
-        st.image(image_gyudon, width=200)
+        st.image(image_gyudon, width=p_size)
     elif mealname=='pizza':
-        st.image(image_pizza, width=200)
+        st.image(image_pizza, width=p_size)
     elif mealname=='udon':
-        st.image(image_udon, width=200)
+        st.image(image_udon, width=p_size)
     elif mealname=='sushi':
-        st.image(image_sushi, width=200)
+        st.image(image_sushi, width=p_size)
     else:
-        st.image(image_gohan, width=200)
+        st.image(image_gohan, width=p_size)
 
 def ideal_calorie(gender, age, height, weight, activitiy_level):
     if(gender=="male"):
@@ -211,27 +211,33 @@ def ideal_calorie(gender, age, height, weight, activitiy_level):
 st.write("ideal calorie=", float2string(ideal_calorie(gender, age, height, weight, 3)))
 
 st.write("***") # horizontal line
-
+st.write("*today's meal*")
 total_calorie=0
 cals=[]
 meals=[]
 
 # breakfast
-breakfast = st.radio(
-    "breakfast: ",
-    ["hamburger", "curry", "oatmeal", "gyudon", "pizza", "udon", "sushi", "other"], horizontal=True,
-)
-if breakfast == "other":
-    breakfast = st.text_input('breakfast')
+#breakfast = st.radio(
+#    "breakfast: ",
+#    ["hamburger", "curry", "oatmeal", "gyudon", "pizza", "udon", "sushi", "other"], horizontal=True,
+#)
+#if breakfast == "other":
+#    breakfast = st.text_input('breakfast')
+
+options = ["curry", "oatmeal", "gyudon", "pizza", "udon", "sushi", "other"]
+breakfast = st.selectbox("breakfast: ", options, index=1, placeholder="select")
 
 st.write(breakfast)
-showMealPicture(breakfast)
+showMealPicture(breakfast, 100)
 c.execute("SELECT * FROM meal_data WHERE name=?", (breakfast, ))
 d=c.fetchone()
 st.write("calorie of ", d[1], " is", d[2], "kcal")
-total_calorie+=d[2]
-cals.append(d[2])
+size_b=st.slider("size of meal: x 0.1 - x 3.0", 0.1, 3.0, 1.0, 0.1, key=1)
+st.write("Calorie of your breakfast is ", d[2]*size_b)
+total_calorie+=d[2]*size_b
+cals.append(d[2]*size_b)
 meals.append('breakfast')
+
 
 # lunch
 lunch = st.radio(
@@ -242,12 +248,14 @@ if lunch == "other":
     lunch = st.text_input('lunch')
 
 st.write(lunch)
-showMealPicture(lunch)
+showMealPicture(lunch, 100)
 c.execute("SELECT * FROM meal_data WHERE name=?", (lunch, ))
 d=c.fetchone()
 st.write("calorie of ", d[1], " is", d[2], "kcal")
-total_calorie+=d[2]
-cals.append(d[2])
+size_l=st.slider("size of meal: x 0.1 - x 3.0", 0.1, 3.0, 1.0, 0.1, key=2)
+st.write("Calorie of your lunch is ", d[2]*size_l)
+total_calorie+=d[2]*size_l
+cals.append(d[2]*size_l)
 meals.append('lunch')
 
 # supper
@@ -259,12 +267,14 @@ if supper == "other":
     supper = st.text_input('supper')
 
 st.write(supper)
-showMealPicture(supper)
+showMealPicture(supper, 100)
 c.execute("SELECT * FROM meal_data WHERE name=?", (supper, ))
 d=c.fetchone()
 st.write("calorie of ", d[1], " is", d[2], "kcal")
-total_calorie+=d[2]
-cals.append(d[2])
+size_s=st.slider("size of meal: x 0.1 - x 3.0", 0.1, 3.0, 1.0, 0.1, key=3)
+st.write("Calorie of your supper is ", d[2]*size_s)
+total_calorie+=d[2]*size_s
+cals.append(d[2]*size_s)
 meals.append('supper')
 
 # snack
@@ -276,12 +286,14 @@ if snack == "other":
     supper = st.text_input('snack')
 
 st.write(snack)
-showMealPicture(snack)
+showMealPicture(snack, 100)
 c.execute("SELECT * FROM meal_data WHERE name=?", (snack, ))
 d=c.fetchone()
 st.write("calorie of ", d[1], " is", d[2], "kcal")
-total_calorie+=d[2]
-cals.append(d[2])
+size_sn=st.slider("size of meal: x 0.1 - x 3.0", 0.1, 3.0, 1.0, 0.1, key=4)
+st.write("Calorie of your snack is ", d[2]*size_sn)
+total_calorie+=d[2]*size_sn
+cals.append(d[2]*size_sn)
 meals.append('snack')
 
 st.write("today's total calorie is ", total_calorie, "kcal")
@@ -295,7 +307,7 @@ print(f'cancel_btn: {cancel_btn}')
 # dataframe
 st.write('DataFrame')
 df = pd.DataFrame({
-    'meal': ['breakfast','lunch','supper','snack', 'total', 'ideal'],
+    'meal': ['breakfast','lunch','supper','snack', 'total', 'zideal'],
     'calorie(kcal)': [cals[0],cals[1],cals[2],cals[3],total_calorie,ideal_calorie(gender,age,height,weight,3)]
 })
 #st.write(df)
@@ -320,7 +332,7 @@ def chat():
         st.write(f"User has sent the following prompt: {prompt}")
 
 
-    st.title("Hello Bot")
+    st.title("advise bot")
     if "Messages" not in st.session_state:
         st.session_state.messages=[]
 
@@ -340,7 +352,7 @@ def chat():
         st.markdown(response)
 #
 
-st.title("Simple chat")
+st.title("Adviser Bot")
 
 # Initialize chat history
 if "messages" not in st.session_state:
