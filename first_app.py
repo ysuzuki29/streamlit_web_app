@@ -221,11 +221,11 @@ meals=[]
 #    "breakfast: ",
 #    ["hamburger", "curry", "oatmeal", "gyudon", "pizza", "udon", "sushi", "other"], horizontal=True,
 #)
-#if breakfast == "other":
-#    breakfast = st.text_input('breakfast')
 
-options = ["curry", "oatmeal", "gyudon", "pizza", "udon", "sushi", "other"]
-breakfast = st.selectbox("breakfast: ", options, index=1, placeholder="select")
+meal_options = ["curry", "oatmeal", "gyudon", "pizza", "udon", "sushi", "other"]
+breakfast = st.selectbox("breakfast: ", meal_options, index=1, placeholder="select")
+if breakfast == "other":
+    breakfast = st.text_input('breakfast')
 
 st.write(breakfast)
 showMealPicture(breakfast, 100)
@@ -240,10 +240,14 @@ meals.append('breakfast')
 
 
 # lunch
-lunch = st.radio(
-    "lunch: ",
-    ["hamburger", "curry", "oatmeal", "gyudon", "pizza", "udon", "sushi", "other"], horizontal=True,
-)
+#lunch = st.radio(
+#    "lunch: ",
+#    ["hamburger", "curry", "oatmeal", "gyudon", "pizza", "udon", "sushi", "other"], horizontal=True,
+#)
+#if lunch == "other":
+#    lunch = st.text_input('lunch')
+
+lunch = st.selectbox("lunch: ", meal_options, index=1, placeholder="select")
 if lunch == "other":
     lunch = st.text_input('lunch')
 
@@ -259,10 +263,14 @@ cals.append(d[2]*size_l)
 meals.append('lunch')
 
 # supper
-supper = st.radio(
-    "supper: ",
-    ["hamburger", "curry", "oatmeal", "gyudon", "pizza", "udon", "sushi", "other"], horizontal=True,
-)
+#supper = st.radio(
+#    "supper: ",
+#    ["hamburger", "curry", "oatmeal", "gyudon", "pizza", "udon", "sushi", "other"], horizontal=True,
+#)
+#if supper == "other":
+#    supper = st.text_input('supper')
+
+supper = st.selectbox("supper: ", meal_options, index=1, placeholder="select")
 if supper == "other":
     supper = st.text_input('supper')
 
@@ -278,12 +286,16 @@ cals.append(d[2]*size_s)
 meals.append('supper')
 
 # snack
-snack = st.radio(
-    "snack: ",
-    ["hamburger", "curry", "oatmeal", "gyudon", "pizza", "udon", "sushi", "other"], horizontal=True,
-)
+#snack = st.radio(
+#    "snack: ",
+#    ["hamburger", "curry", "oatmeal", "gyudon", "pizza", "udon", "sushi", "other"], horizontal=True,
+#)
+#if snack == "other":
+#    supper = st.text_input('snack')
+
+snack = st.selectbox("snack: ", meal_options, index=1, placeholder="select")
 if snack == "other":
-    supper = st.text_input('snack')
+    snack = st.text_input('snack')
 
 st.write(snack)
 showMealPicture(snack, 100)
@@ -372,12 +384,18 @@ if prompt := st.chat_input("What is up?"):
     st.session_state.messages.append({"role": "user", "content": prompt})
 
 # Streamed response emulator
-def response_generator():
+def response_generator(user_name):
+
+    talk=[]
+    talk.append("Hello "+user_name+"! How can I assist you today?")
+    talk.append("Hi, "+user_name+"! Is there anything I can help you with?")
+    talk.append("Do you need help, "+user_name+"?")
+    
     response = random.choice(
         [
-            "Hello there! How can I assist you today?",
-            "Hi, human! Is there anything I can help you with?",
-            "Do you need help?",
+            talk[0],
+            talk[1],
+            talk[2],
         ]
     )
     for word in response.split():
@@ -386,7 +404,7 @@ def response_generator():
 
 # Display assistant response in chat message container
 with st.chat_message("assistant"):
-    response = st.write_stream(response_generator())
+    response = st.write_stream(response_generator(name))
 # Add assistant response to chat history
 st.session_state.messages.append({"role": "assistant", "content": response})
 
