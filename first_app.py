@@ -14,6 +14,10 @@ import sqlite3
 import math
 import datetime
 
+st.set_page_config(page_title="top page", page_icon="")
+
+st.title("top page")
+
 #for i in range(1,10,1):
 #    st.write(math.factorial(i))
 
