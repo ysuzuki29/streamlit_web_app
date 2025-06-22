@@ -1,5 +1,6 @@
 import streamlit as st
 import streamlit.components.v1 as stc
+from streamlit_echarts import st_echarts
 import numpy as np
 import pandas as pd
 import random
@@ -35,7 +36,7 @@ c_p.execute('''CREATE TABLE IF NOT EXISTS personal_data
              (id INTEGER PRIMARY KEY, name TEXT, gender TEXT, age INTEGER, height REAL, weight REAL)''')
  
 # データの挿入
-if st.button("データを挿入"):
+if st.button("データを挿入 meal data"):
     c.execute("INSERT INTO meal_data (name, calorie, GI) VALUES (?, ?, ?)", ("hamburger", 294.9, 80))
     c.execute("INSERT INTO meal_data (name, calorie, GI) VALUES (?, ?, ?)", ("curry", 650, 90))
     c.execute("INSERT INTO meal_data (name, calorie, GI) VALUES (?, ?, ?)", ("gyudon", 716, 75))
@@ -52,6 +53,7 @@ if st.button("データを挿入 personal data"):
     c_p.execute("INSERT INTO personal_data (name, gender, age, height, weight) VALUES (?, ?, ?, ?, ?)", ("Hanako", "female", 48, 1.60, 55)) 
     c_p.execute("INSERT INTO personal_data (name, gender, age, height, weight) VALUES (?, ?, ?, ?, ?)", ("Taro", "male", 55, 1.70, 80)) 
     conn_p.commit()
+    st.write("データが挿入されました")
 
 # データの取得
 c.execute("SELECT * FROM meal_data")
@@ -62,21 +64,21 @@ rows_p = c_p.fetchall()
 
 
 # データの表示
-st.write("料理とカロリー:")
-for row in rows:
-    st.write(row)
+with st.expander("meal and calorie : click to expand"):
+    for row in rows:
+        st.write(row)
 
 name_dict={}
 persons=[]
-st.write("個人データ:")
-for row_p in rows_p:
-    st.write(row_p) # personal_data 
-    st.write(row_p[1]) # personoal_data name
-    name_dict[row_p[1]]=row_p[0]
-    persons.append(pd.Series(row_p))
-    #st.write(row_p)
-st.write(name_dict)
-st.write(persons)
+with st.expander("personal data : click to expand"):
+    for row_p in rows_p:
+        st.write(row_p) # personal_data 
+        st.write(row_p[1]) # personoal_data name
+        name_dict[row_p[1]]=row_p[0]
+        persons.append(pd.Series(row_p))
+        #st.write(row_p)
+    st.write(name_dict)
+    st.write(persons)
 
 #c.execute("SELECT * FROM meal_data WHERE name='curry'")
 #d=c.fetchone()
@@ -93,10 +95,11 @@ st.write(persons)
 st.title('Lifestyle-related Disease Improvement Support App')
 st.caption('Diabetic Support')
 
+#image human
 image = Image.open('seikatsusyukan_lowcalorie.png')
 image_oji = Image.open('oishii3_ojisan.png')
 image_oba = Image.open('bentou_obasan.png')
-
+#image food
 image_hamburger = Image.open('food_hamburger_cheese.png')
 image_curry = Image.open('curry_indian_man.png')
 image_gyudon = Image.open('food_gyudon.png')
@@ -168,16 +171,16 @@ df = pd.DataFrame({
 st.write(df)
 
 if bmi <= 18.5:
-    st.write("You are in", who_ref[0], "level")
+    st.write("You are at", who_ref[0], "level")
 elif bmi <=25:
-    st.write("**You are in", who_ref[1], "level**")
+    st.write("**You are at", who_ref[1], "level**")
 elif bmi <=30:
-    st.write("You are in", who_ref[2], "level")
+    st.write("You are at", who_ref[2], "level")
 elif bmi <=35:
-    st.write("You are in", who_ref[3], "level")
+    st.write("You are at", who_ref[3], "level")
 elif bmi <=40:
-    st.write("You are in", who_ref[4], "level")
-else: st.write("You are in", who_ref[5], "level")
+    st.write("You are at", who_ref[4], "level")
+else: st.write("You are at", who_ref[5], "level")
 st.write("***") # horizontal line
 
 #st.dataframe(df.style.highlight_max(axis=0), width=400, height=200)
@@ -332,6 +335,33 @@ st.dataframe(df.style.highlight_max(axis=0), width=400, height=300)
 meal_calorie=pd.DataFrame(cals, meals)
 st.bar_chart(meal_calorie)
 
+# radar chart
+st.title("radar chart")
+
+options = {
+    "tooltip": {},
+    "legend": {"data": ["ideal", "yours"]},
+    "radar": {
+        "indicator": [
+            {"name": "carbohydrates", "max": 100},
+            {"name": "protain", "max": 100},
+            {"name": "fat", "max": 100},
+            {"name": "vitamin", "max": 100},
+            {"name": "fiber", "max": 100},
+            {"name": "salt equivalent", "max": 100}
+        ]
+    },
+    "series": [{
+        "name": "評価比較",
+        "type": "radar",
+        "data": [
+            {"value": [80, 90, 70, 60, 85, 80], "name": "ideal"},
+            {"value": [70, 80, 85, 75, 90, 80], "name": "yours"}
+        ]
+    }]
+}
+
+st_echarts(options=options, height="500px")
 
 #
 def chat():
