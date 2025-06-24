@@ -336,7 +336,7 @@ meal_calorie=pd.DataFrame(cals, meals)
 st.bar_chart(meal_calorie)
 
 # radar chart
-st.title("radar chart")
+st.title("radar chart (6 ingredients)")
 
 options = {
     "tooltip": {},
