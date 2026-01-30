@@ -4,6 +4,7 @@ from streamlit_echarts import st_echarts
 import numpy as np
 import pandas as pd
 import random
+from transitions import Machine
 #import plotly
 #import plotly.express as px
 import base64
@@ -14,6 +15,8 @@ import wave
 import sqlite3
 import math
 import datetime
+import os
+from google import genai
 
 st.set_page_config(page_title="top page", page_icon="")
 
@@ -363,6 +366,7 @@ options = {
 
 st_echarts(options=options, height="500px")
 
+
 #
 def chat():
     with st.chat_message("User"):
@@ -398,8 +402,90 @@ def chat():
         st.markdown(response)
 #
 
-st.title("Adviser Bot")
+st.title("Advisor Bot")
 
+states=['start','recommend', 'end']
+
+transitions=[
+    {'trigger': 'hello', 'source': 'start', 'dest': 'recommend'},
+    {'trigger': 'hello', 'source': 'recommend', 'dest': 'end'},
+    {'trigger': 'hello', 'source': 'end', 'dest': 'start'},
+]
+
+class Conversation(object):
+    def action_s2r(self):
+        print("start to recommendation")
+
+    def action_r2e(self):
+        print("recommendation to end")
+
+    def action_e2s(self):
+        print("end to start")
+
+conv=Conversation()
+machine=Machine(model=conv, states=states, transitions=transitions, initial='start', auto_transitions=False)
+
+
+# @st.cache_resource を使って、クライアントのインスタンスをキャッシュ
+@st.cache_resource
+def get_gemini_client():
+    if not os.getenv("GEMINI_API_KEY"):
+        st.error("GEMINI_API_KEY 環境変数が設定されていません。")
+        return None
+    return genai.Client()
+
+client = get_gemini_client()
+
+# クライアントがなければ処理を停止
+if not client:
+    st.stop()
+
+# UIとセッションの初期化
+
+st.title("💬 Streamlit + Gemini 履歴保持チャットデモ")
+
+# チャットセッションとメッセージ履歴の初期化
+if "chat_session" not in st.session_state:
+    # chat_session オブジェクトが自動的に履歴を管理
+    st.session_state.chat_session = client.chats.create(
+        model="gemini-2.5-pro"
+    )
+
+if "messages" not in st.session_state:
+    # Streamlitの表示用メッセージ履歴を初期化
+    st.session_state.messages = [
+        {"role": "model", "parts": "私はGeminiモデルです。何でも質問してください！"}
+    ]
+
+# 履歴の表示 
+
+for message in st.session_state.messages:
+    with st.chat_message(message["role"]):
+        st.markdown(message["parts"])
+
+# ユーザー入力と応答ロジック
+
+prompt = st.chat_input("メッセージを入力...")
+
+if prompt:
+    # ユーザー入力を履歴に追加し、画面に表示
+    st.session_state.messages.append({"role": "user", "parts": prompt})
+    with st.chat_message("user"):
+        st.markdown(prompt)
+
+    # Geminiからの応答を生成
+    with st.chat_message("model"):
+        with st.spinner("Geminiが思考中..."):
+                   
+            response = st.session_state.chat_session.send_message(prompt)
+            
+            # 応答を画面に表示
+            st.markdown(response.text)
+            
+            # Geminiの応答を履歴に追加
+            st.session_state.messages.append({"role": "model", "parts": response.text})
+
+"""
 # Initialize chat history
 if "messages" not in st.session_state:
     st.session_state.messages = []
@@ -418,18 +504,21 @@ if prompt := st.chat_input("What is up?"):
     st.session_state.messages.append({"role": "user", "content": prompt})
 
 # Streamed response emulator
-def response_generator(user_name):
+def response_generator(user_name, conv.states):
 
-    talk=[]
-    talk.append("Hello "+user_name+"! How can I assist you today?")
-    talk.append("Hi, "+user_name+"! Is there anything I can help you with?")
-    talk.append("Do you need help, "+user_name+"?")
+    if states==start:
+        talk=[]
+        talk.append("Hello "+user_name+"! How can I assist you today?")
+        talk.append("Hi, "+user_name+"! Is there anything I can help you with?")
+        talk.append("Do you need help, "+user_name+"?")
+        talk.append("You ate meal too much today!!")
     
     response = random.choice(
         [
             talk[0],
             talk[1],
             talk[2],
+            talk[3],
         ]
     )
     for word in response.split():
@@ -437,12 +526,13 @@ def response_generator(user_name):
         time.sleep(0.05)
 
 # Display assistant response in chat message container
+states='start'
 with st.chat_message("assistant"):
-    response = st.write_stream(response_generator(name))
+    response = st.write_stream(response_generator(name, states))
 # Add assistant response to chat history
 st.session_state.messages.append({"role": "assistant", "content": response})
 
-
+"""
 #-------------------
 
 # chart
